@@ -1,4 +1,6 @@
-<img src="https://socialify.git.ci/Bhavishya2601/TypeTrainer/image?language=1&name=1&owner=1&theme=Dark" alt="TypeTrainer" width="640" height="320" />
+<p align="center">
+<img src="https://socialify.git.ci/Bhavishya2601/TypeTrainer/image?language=1&name=1&owner=1&theme=Dark" alt="TypeTrainer">
+</p>
 
 # TypeTrainer
 
