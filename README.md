@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img src="https://socialify.git.ci/Bhavishya2601/TypeTrainer/image?language=1&name=1&owner=1&theme=Dark" alt="TypeTrainer" width="640" height="320" />
 
-## Getting Started
+# TypeTrainer
 
-First, run the development server:
+**TypeTrainer** is a sleek and customizable typing practice web app built with **Next.js**, **TypeScript**, and **Tailwind CSS**. It's designed to help users improve their typing speed and accuracy with real-time feedback.
+
+---
+
+## 🚀 Features
+
+- ⏲️ **Adjustable Test Duration**  
+  Choose how long the typing test lasts (e.g., 30s, 60s, 120s).
+
+- 📝 **Configurable Word Count**  
+  Set how many random words you want to type in each test.
+
+- 📊 **Performance Summary**  
+  Get detailed results when the test ends like WMP, accuracy etc.
+
+- 💡 **Live Feedback**  
+  See which characters and words are correct or incorrect as you type.
+
+- 🌙 **Minimal & Clean UI**  
+  Dark-mode aesthetic with responsive design for all screen sizes.
+
+---
+
+## 📦 Getting Started
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/bhavishya2601/typetrainer.git
+cd typetrainer
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) to start typing!
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🖼️ Preview
 
-## Learn More
+## ![alt text](public/image.png)
 
-To learn more about Next.js, take a look at the following resources:
+## 📬 Contact
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Have questions or ideas? Reach out via GitHub or open an issue.  
+Let’s help the world type faster — one keystroke at a time! ⌨️✨
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
