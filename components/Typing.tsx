@@ -4,25 +4,35 @@ import React, { useEffect, useState } from "react";
 import { generate } from "random-words";
 import clsx from "clsx";
 import Result from "./Result";
+import WordsBar from "./WordTimeBar";
 
 export default function Typing() {
-  const TEST_DURATION = 50;
-  const TOTAL_WORDS = 50;
-
   const [words, setWords] = useState<string[]>([]);
   const [typedWords, setTypedWords] = useState<string[]>([]);
   const [currentWord, setCurrentWord] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [testDuration, setTestDuration] = useState(60);
+  const [wordsCount, setWordsCount] = useState(45);
 
-  const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
+  const [timeLeft, setTimeLeft] = useState(testDuration);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const isRunning = startTime !== null && !isFinished;
+
+  const handleWordCnt = (value: number) => {
+    setWordsCount(value);
+  };
+
+  const handleTestDuration = (value: number) => {
+    setTestDuration(value);
+    setTimeLeft(value);
+  };
 
   useEffect(() => {
     setIsClient(true);
-    setWords(generate(TOTAL_WORDS) as string[]);
-  }, []);
+    setWords(generate(wordsCount) as string[]);
+  }, [wordsCount]);
 
   useEffect(() => {
     if (!startTime || isFinished) return;
@@ -46,7 +56,7 @@ export default function Typing() {
       if (isFinished) return;
       if (!startTime) {
         setStartTime(Date.now());
-        setTimeLeft(TEST_DURATION);
+        setTimeLeft(testDuration);
       }
 
       if (e.key === "Backspace") {
@@ -62,22 +72,23 @@ export default function Typing() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentWord, isFinished, startTime, isClient]);
+  }, [currentWord, isFinished, startTime, isClient, testDuration]);
 
   const finishTest = () => {
     setIsFinished(true);
   };
 
   const restartTest = () => {
-    setWords(generate(TOTAL_WORDS) as string[]);
+    setWords(generate(wordsCount) as string[]);
     setTypedWords([]);
     setCurrentWord("");
     setActiveIndex(0);
-    setTimeLeft(TEST_DURATION);
+    setTimeLeft(testDuration);
     setStartTime(null);
     setIsFinished(false);
   };
 
+  // logic for result calculation
   const fullTyped = [...typedWords, currentWord];
   const correctChars = fullTyped
     .join("")
@@ -87,7 +98,7 @@ export default function Typing() {
   const accuracy =
     totalChars === 0 ? 0 : Math.round((correctChars / totalChars) * 100);
   const wpm = Math.round(
-    correctChars / 5 / ((TEST_DURATION - timeLeft) / 60) || 1,
+    correctChars / 5 / ((testDuration - timeLeft) / 60) || 1,
   );
 
   if (!isClient) {
@@ -95,9 +106,9 @@ export default function Typing() {
       <main className="min-h-[calc(100vh-104px)] flex flex-col gap-3 items-center justify-center p-6 bg-gray-900 text-white">
         <div className="flex flex-col gap-3">
           <div className="flex justify-start w-full text-yellow-500 max-w-6xl text-2xl">
-            <span className="font-bold">{TEST_DURATION}</span>
+            <span className="font-bold">{testDuration}</span>
           </div>
-          <div className="max-w-6xl text-3xl leading-12 font-mono mb-6 text-wrap break-words">
+          <div className="max-w-6xl text-3xl leading-12 font-roboto mb-6 text-wrap break-words">
             <span className="text-gray-500">Loading...</span>
           </div>
         </div>
@@ -109,11 +120,16 @@ export default function Typing() {
     <main className="min-h-[calc(100vh-104px)] flex flex-col gap-3 items-center justify-center p-6 bg-gray-900 text-white">
       {!isFinished && (
         <div className="flex flex-col gap-3">
+          <WordsBar
+            onSelectCnt={handleWordCnt}
+            onSelectTimer={handleTestDuration}
+            disabled={isRunning}
+          />
           <div className="flex justify-start w-full text-yellow-500 max-w-6xl text-2xl">
             <span className="font-bold">{timeLeft}</span>
           </div>
 
-          <div className="max-w-6xl text-3xl leading-12 font-mono mb-6 text-wrap break-words">
+          <div className="max-w-6xl text-3xl leading-12 font-roboto mb-6 text-wrap break-words">
             {words.map((word, index) => {
               const isActive = index === activeIndex;
               const typedWord =
