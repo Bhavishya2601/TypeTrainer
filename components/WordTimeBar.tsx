@@ -29,7 +29,7 @@ export default function WordTimeBar({
   };
 
   return (
-    <div className="flex justify-between">
+    <div className="flex flex-col sm:flex-row gap-3 justify-between">
       <div className="flex gap-1 items-center">
         <div>Time: </div>
         <div className="flex items-center">

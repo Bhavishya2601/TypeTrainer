@@ -62,9 +62,16 @@ export default function Typing() {
       if (e.key === "Backspace") {
         setCurrentWord((prev) => prev.slice(0, -1));
       } else if (e.key === " " || e.key === "Enter") {
-        setTypedWords((prev) => [...prev, currentWord]);
+        const newTypedWords = [...typedWords, currentWord];
+        setTypedWords(newTypedWords);
         setCurrentWord("");
-        setActiveIndex((prev) => prev + 1);
+
+        const newActiveIndex = activeIndex + 1;
+        setActiveIndex(newActiveIndex);
+
+        if (newActiveIndex >= words.length) {
+          finishTest();
+        }
       } else if (e.key.length === 1) {
         setCurrentWord((prev) => prev + e.key);
       }
@@ -72,7 +79,16 @@ export default function Typing() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentWord, isFinished, startTime, isClient, testDuration]);
+  }, [
+    currentWord,
+    isFinished,
+    startTime,
+    isClient,
+    testDuration,
+    typedWords,
+    activeIndex,
+    words.length,
+  ]);
 
   const finishTest = () => {
     setIsFinished(true);
@@ -89,17 +105,36 @@ export default function Typing() {
   };
 
   // logic for result calculation
-  const fullTyped = [...typedWords, currentWord];
-  const correctChars = fullTyped
-    .join("")
-    .split("")
-    .filter((ch, i) => ch === words.join(" ")[i]).length;
-  const totalChars = fullTyped.join("").length;
+  let correctChars = 0;
+  typedWords.forEach((typedWord, index) => {
+    const originalWord = words[index] || "";
+    for (let i = 0; i < typedWord.length; i++) {
+      if (typedWord[i] === originalWord[i]) {
+        correctChars++;
+      }
+    }
+  });
+
+  let correctWords = 0;
+  const mistypedWords = new Set<number>();
+
+  typedWords.forEach((typedWord, index) => {
+    const originalWord = words[index] || "";
+
+    if (typedWord !== originalWord) {
+      mistypedWords.add(index);
+    } else {
+      correctWords++;
+    }
+  });
+
+  const totalTypedWords = typedWords.length;
+  const minutes = (testDuration - timeLeft) / 60;
+  const wpm = minutes > 0 ? Math.round(correctChars / 5 / minutes) : 0;
   const accuracy =
-    totalChars === 0 ? 0 : Math.round((correctChars / totalChars) * 100);
-  const wpm = Math.round(
-    correctChars / 5 / ((testDuration - timeLeft) / 60) || 1,
-  );
+    totalTypedWords === 0
+      ? 0
+      : Math.round((correctWords / totalTypedWords) * 100);
 
   if (!isClient) {
     return (
@@ -129,7 +164,7 @@ export default function Typing() {
             <span className="font-bold">{timeLeft}</span>
           </div>
 
-          <div className="max-w-6xl text-3xl leading-12 font-roboto mb-6 text-wrap break-words">
+          <div className="max-w-6xl text-2xl sm:text-3xl leading-12 font-roboto mb-6 text-wrap break-words">
             {words.map((word, index) => {
               const isActive = index === activeIndex;
               const typedWord =
