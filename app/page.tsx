@@ -1,7 +1,13 @@
+import Header from "@/components/Header";
+import Typing from "@/components/Typing";
+import Footer from "@/components/Footer";
+
 export default function Home() {
   return (
-    <div className="flex items-center justify-center min-h-screen text-5xl font-semibold p-24">
-      Currently under Development
+    <div className="bg-gray-900 text-white">
+      <Header />
+      <Typing />
+      <Footer />
     </div>
   );
 }

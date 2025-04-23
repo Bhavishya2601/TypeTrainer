@@ -1,0 +1,162 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { generate } from "random-words";
+import clsx from "clsx";
+import Result from "./Result";
+
+export default function Typing() {
+  const TEST_DURATION = 50;
+  const TOTAL_WORDS = 50;
+
+  const [words, setWords] = useState<string[]>([]);
+  const [typedWords, setTypedWords] = useState<string[]>([]);
+  const [currentWord, setCurrentWord] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setWords(generate(TOTAL_WORDS) as string[]);
+  }, []);
+
+  useEffect(() => {
+    if (!startTime || isFinished) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          finishTest();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [startTime, isFinished]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isFinished) return;
+      if (!startTime) {
+        setStartTime(Date.now());
+        setTimeLeft(TEST_DURATION);
+      }
+
+      if (e.key === "Backspace") {
+        setCurrentWord((prev) => prev.slice(0, -1));
+      } else if (e.key === " " || e.key === "Enter") {
+        setTypedWords((prev) => [...prev, currentWord]);
+        setCurrentWord("");
+        setActiveIndex((prev) => prev + 1);
+      } else if (e.key.length === 1) {
+        setCurrentWord((prev) => prev + e.key);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentWord, isFinished, startTime, isClient]);
+
+  const finishTest = () => {
+    setIsFinished(true);
+  };
+
+  const restartTest = () => {
+    setWords(generate(TOTAL_WORDS) as string[]);
+    setTypedWords([]);
+    setCurrentWord("");
+    setActiveIndex(0);
+    setTimeLeft(TEST_DURATION);
+    setStartTime(null);
+    setIsFinished(false);
+  };
+
+  const fullTyped = [...typedWords, currentWord];
+  const correctChars = fullTyped
+    .join("")
+    .split("")
+    .filter((ch, i) => ch === words.join(" ")[i]).length;
+  const totalChars = fullTyped.join("").length;
+  const accuracy =
+    totalChars === 0 ? 0 : Math.round((correctChars / totalChars) * 100);
+  const wpm = Math.round(
+    correctChars / 5 / ((TEST_DURATION - timeLeft) / 60) || 1,
+  );
+
+  if (!isClient) {
+    return (
+      <main className="min-h-[calc(100vh-104px)] flex flex-col gap-3 items-center justify-center p-6 bg-gray-900 text-white">
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-start w-full text-yellow-500 max-w-6xl text-2xl">
+            <span className="font-bold">{TEST_DURATION}</span>
+          </div>
+          <div className="max-w-6xl text-3xl leading-12 font-mono mb-6 text-wrap break-words">
+            <span className="text-gray-500">Loading...</span>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-[calc(100vh-104px)] flex flex-col gap-3 items-center justify-center p-6 bg-gray-900 text-white">
+      {!isFinished && (
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-start w-full text-yellow-500 max-w-6xl text-2xl">
+            <span className="font-bold">{timeLeft}</span>
+          </div>
+
+          <div className="max-w-6xl text-3xl leading-12 font-mono mb-6 text-wrap break-words">
+            {words.map((word, index) => {
+              const isActive = index === activeIndex;
+              const typedWord =
+                index < typedWords.length
+                  ? typedWords[index]
+                  : isActive
+                    ? currentWord
+                    : "";
+
+              return (
+                <span key={index} className="inline-block mr-2">
+                  {Array.from({
+                    length: Math.max(word.length, typedWord.length),
+                  }).map((_, charIndex) => {
+                    const char = word[charIndex] || "";
+                    const typedChar = typedWord[charIndex];
+                    const isCorrect = typedChar === char;
+
+                    let className = "text-gray-500";
+                    if (typedChar != null) {
+                      className = isCorrect ? "text-white" : "text-red-400";
+                    }
+
+                    if (isActive && charIndex === currentWord.length) {
+                      className += " underline decoration-yellow-500";
+                    }
+
+                    return (
+                      <span key={charIndex} className={clsx(className)}>
+                        {typedChar !== undefined ? typedChar : char}
+                      </span>
+                    );
+                  })}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {isFinished && (
+        <Result wpm={wpm} accuracy={accuracy} restartTest={restartTest} />
+      )}
+    </main>
+  );
+}
